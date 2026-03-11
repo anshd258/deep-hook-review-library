@@ -1,0 +1,51 @@
+# Deep Hook — example configuration
+# Copy to deep.yml or pass to load_config() in your backend.
+# Previous review context is passed at runtime (see run_review(..., previous_review=...)).
+
+# Project language: python | flutter | typescript | javascript | go | rust | java | other
+language: python
+
+# Global guidelines applied to every file
+guidelines:
+  - "Follow project coding standards"
+  - "All public functions must have type hints"
+  - "No bare except; use specific exceptions"
+
+# Per-file-pattern guidelines (glob patterns)
+file_guidelines:
+  - pattern: "*.py"
+    guidelines:
+      - "Use docstrings on all public functions"
+      - "Prefer context managers for resource handling"
+  - pattern: "tests/**"
+    guidelines:
+      - "Each test must have a clear assertion"
+  - pattern: "src/api/**"
+    guidelines:
+      - "Validate input with Pydantic"
+      - "Return proper HTTP status codes"
+
+# LLM provider
+llm:
+  provider: ollama   # openai | anthropic | ollama
+  model: gpt-oss:20b
+  temperature: 0.1
+  # For Ollama (local):
+  base_url: http://localhost:11434
+  # For OpenAI/Anthropic (set api_key here or via env OPENAI_API_KEY / ANTHROPIC_API_KEY):
+  # api_key: sk-...
+
+# Review limits
+review:
+  max_diff_lines: 3000
+
+# Optional MCP server for extra guidelines (caller can also use mcp_fetcher in run_review)
+mcp:
+  server_url: null
+  tool_name: null
+  headers: {}
+
+# Memory / previous review:
+# Not stored in config. Pass at runtime when calling run_review():
+#   run_review(changes, config, previous_review=last_review_markdown)
+# where last_review_markdown is a string (e.g. from your DB or generate_review_markdown(result)).
