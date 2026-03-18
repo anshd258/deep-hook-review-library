@@ -1,4 +1,4 @@
-"""Core domain models for Deep Hook.
+"""Core domain models for Deek Hook - Review.
 
 All Pydantic v2 models used across the system live here.
 This module has no internal dependencies to avoid circular imports.
@@ -66,15 +66,22 @@ class LLMConfig(BaseModel):
     api_key: Optional[str] = Field(default=None, description="API key override (reads from env if None)")
 
 
-class MCPConfig(BaseModel):
-    """Configuration for an MCP server that provides additional review guidelines."""
-    server_url: Optional[str] = Field(default=None, description="MCP server endpoint URL")
-    tool_name: Optional[str] = Field(default=None, description="MCP tool to call for fetching guidelines")
+class MCPServerConfig(BaseModel):
+    """Configuration for a single MCP server."""
+    name: str = Field(description="Identifier for the MCP server")
+    url: str = Field(description="MCP server endpoint URL")
+    description: str = Field(default="", description="Description injected into the LLM system prompt")
+    transport: str = Field(default="streamable_http", description="MCP transport type: streamable_http | sse")
     headers: dict[str, str] = Field(default_factory=dict, description="Extra headers for MCP calls")
+
+
+class MCPConfig(BaseModel):
+    """Configuration for MCP servers that provide tools to the review agent."""
+    servers: list[MCPServerConfig] = Field(default_factory=list)
 
     @property
     def enabled(self) -> bool:
-        return bool(self.server_url and self.tool_name)
+        return len(self.servers) > 0
 
 
 class FileGuideline(BaseModel):
@@ -123,6 +130,10 @@ class ReviewResult(BaseModel):
     issues: list[Issue] = Field(default_factory=list)
     flow: str = ""
     raw_output: str = ""
+    tool_calls_used: list[str] = Field(
+        default_factory=list,
+        description="Names of MCP tools called during the review (order preserved).",
+    )
 
     @property
     def critical(self) -> list[Issue]:

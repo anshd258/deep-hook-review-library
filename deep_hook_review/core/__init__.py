@@ -1,12 +1,12 @@
 """Core models, prompts, and exceptions."""
 
-from deep_hook.core.exceptions import (
+from deep_hook_review.core.exceptions import (
     AgentError,
     ConfigError,
     DeepHookError,
     LLMError,
 )
-from deep_hook.core.models import (
+from deep_hook_review.core.models import (
     DeepConfig,
     FileChange,
     FileGuideline,
@@ -16,6 +16,7 @@ from deep_hook.core.models import (
     LLMConfig,
     LLMProvider,
     MCPConfig,
+    MCPServerConfig,
     ReviewConfig,
     ReviewResult,
     Severity,
@@ -35,6 +36,7 @@ __all__ = [
     "LLMError",
     "LLMProvider",
     "MCPConfig",
+    "MCPServerConfig",
     "ReviewConfig",
     "ReviewResult",
     "Severity",

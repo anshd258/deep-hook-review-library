@@ -1,8 +1,8 @@
-"""Deep Hook — AI-powered code review as an importable Python package.
+"""Deek Hook - Review — AI-powered code review as an importable Python package.
 
 Usage::
 
-    from deep_hook import run_review, GitLabChange, config_from_yml
+    from deep_hook_review import run_review, GitLabChange, config_from_yml
 
     changes = [
         GitLabChange(
@@ -22,11 +22,11 @@ Usage::
 __version__ = "3.0.0"
 __author__ = "anshdeep"
 
-from deep_hook.agent.review_agent import MCPFetcher, run_review
-from deep_hook.config.loader import config_from_yml, load_config
-from deep_hook.core.exceptions import AgentError, ConfigError, DeepHookError, LLMError
-from deep_hook.core.markdown import format_previous_review, generate_review_markdown
-from deep_hook.core.models import (
+from deep_hook_review.agent.review_agent import run_review
+from deep_hook_review.config.loader import config_from_yml, load_config
+from deep_hook_review.core.exceptions import AgentError, ConfigError, DeepHookError, LLMError
+from deep_hook_review.core.markdown import format_previous_review, generate_review_markdown
+from deep_hook_review.core.models import (
     DeepConfig,
     FileChange,
     FileGuideline,
@@ -36,10 +36,12 @@ from deep_hook.core.models import (
     LLMConfig,
     LLMProvider,
     MCPConfig,
+    MCPServerConfig,
     ReviewConfig,
     ReviewResult,
     Severity,
 )
+from deep_hook_review.mcp.tools import load_mcp_tools
 
 __all__ = [
     # Main entry point
@@ -54,6 +56,7 @@ __all__ = [
     "DeepConfig",
     "LLMConfig",
     "MCPConfig",
+    "MCPServerConfig",
     "ReviewConfig",
     "FileGuideline",
     "Language",
@@ -64,7 +67,7 @@ __all__ = [
     "FileChange",
     "Severity",
     # MCP integration
-    "MCPFetcher",
+    "load_mcp_tools",
     # Exceptions
     "DeepHookError",
     "ConfigError",

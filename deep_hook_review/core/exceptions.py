@@ -1,8 +1,8 @@
-"""Centralized exception hierarchy for Deep Hook."""
+"""Centralized exception hierarchy for Deek Hook - Review."""
 
 
 class DeepHookError(Exception):
-    """Base exception for all Deep Hook errors."""
+    """Base exception for all Deek Hook - Review errors."""
 
 
 class ConfigError(DeepHookError):

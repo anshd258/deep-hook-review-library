@@ -7,22 +7,23 @@ The rest of the system never imports provider-specific classes directly.
 from __future__ import annotations
 
 import os
+from typing import Optional
 
 from langchain_core.language_models.chat_models import BaseChatModel
 
-from deep_hook.core.exceptions import LLMError
-from deep_hook.core.models import DeepConfig, LLMProvider
+from deep_hook_review.core.exceptions import LLMError
+from deep_hook_review.core.models import DeepConfig, LLMProvider
 
 
-def get_llm(config: DeepConfig) -> BaseChatModel:
+def get_llm(config: DeepConfig, api_key: Optional[str] = None) -> BaseChatModel:
     """Build and return a chat model from the active configuration."""
     llm_cfg = config.llm
 
     match llm_cfg.provider:
         case LLMProvider.OPENAI:
-            return _build_openai(llm_cfg.model, llm_cfg.temperature, llm_cfg.api_key, llm_cfg.base_url)
+            return _build_openai(llm_cfg.model, llm_cfg.temperature, api_key, llm_cfg.base_url)
         case LLMProvider.ANTHROPIC:
-            return _build_anthropic(llm_cfg.model, llm_cfg.temperature, llm_cfg.api_key, llm_cfg.base_url)
+            return _build_anthropic(llm_cfg.model, llm_cfg.temperature, api_key, llm_cfg.base_url)
         case LLMProvider.OLLAMA:
             return _build_ollama(llm_cfg.model, llm_cfg.temperature, llm_cfg.base_url)
         case _:
@@ -42,7 +43,7 @@ def _build_openai(
     except ImportError as exc:
         raise LLMError("Install langchain-openai: pip install langchain-openai") from exc
 
-    key = api_key or os.environ.get("OPENAI_API_KEY")
+    key = api_key or os.getenv("OPENAI_API_KEY")
     if not key:
         raise LLMError(
             "OpenAI API key not found. Set OPENAI_API_KEY env var or add api_key to deep.yml"
@@ -66,7 +67,7 @@ def _build_anthropic(
     except ImportError as exc:
         raise LLMError("Install langchain-anthropic: pip install langchain-anthropic") from exc
 
-    key = api_key or os.environ.get("ANTHROPIC_API_KEY")
+    key = api_key or os.getenv("ANTHROPIC_API_KEY")
     if not key:
         raise LLMError(
             "Anthropic API key not found. Set ANTHROPIC_API_KEY env var or add api_key to deep.yml"

@@ -3,7 +3,7 @@
 
 from pathlib import Path
 
-from deep_hook import (
+from deep_hook_review import (
     run_review,
     GitLabChange,
     DeepConfig,
@@ -13,9 +13,9 @@ from deep_hook import (
 )
 
 try:
-    from deep_hook import config_from_yml
+    from deep_hook_review import config_from_yml
 except ImportError:
-    from deep_hook.config.loader import config_from_yml
+    from deep_hook_review.config.loader import config_from_yml
 
 # Use the exact model name from `ollama list` (e.g. gpt-oss:20b or gpt oss:20b)
 OLLAMA_MODEL = "gpt-oss:20b"

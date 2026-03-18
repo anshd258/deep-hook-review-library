@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 
-from deep_hook.core.models import FileChange, Issue, ReviewResult, Severity
+from deep_hook_review.core.models import FileChange, Issue, ReviewResult, Severity
 
 
 def parse_review_output(raw: str) -> ReviewResult:

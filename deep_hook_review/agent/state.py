@@ -7,7 +7,7 @@ from typing import Annotated, Optional
 from langgraph.graph.message import add_messages
 from typing_extensions import TypedDict
 
-from deep_hook.core.models import ReviewResult
+from deep_hook_review.core.models import ReviewResult
 
 
 class ReviewState(TypedDict):

@@ -6,26 +6,26 @@ Config can be loaded from a YAML file, a dict, or constructed inline.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional, Sequence, Union
 
 import yaml
 from pydantic import ValidationError
 
-from deep_hook.core.exceptions import ConfigError
-from deep_hook.core.models import DeepConfig
+from deep_hook_review.core.exceptions import ConfigError
+from deep_hook_review.core.models import DeepConfig
 
-CONFIG_FILENAMES = ("deep.yml", ".deep.yml")
+DEFAULT_CONFIG_FILENAMES: tuple[str, ...] = ("deep.yml", ".deep.yml")
 
 
-def config_from_yml(path: Union[str, Path] = "deep.yml") -> DeepConfig:
-    """Load DeepConfig from a deep.yml (or .deep.yml) file.
+def config_from_yml(path: Union[str, Path]) -> DeepConfig:
+    """Load DeepConfig from any YAML file path.
 
     Use the returned config with run_review(changes, config).
 
     Parameters
     ----------
     path
-        Path to the YAML file. Default is ``"deep.yml"`` (resolved from cwd).
+        Path to the YAML file (any ``.yml`` / ``.yaml`` name is fine).
 
     Returns
     -------
@@ -41,8 +41,8 @@ def load_config(source: Union[str, Path, dict, None] = None) -> DeepConfig:
     Parameters
     ----------
     source
-        - ``None`` → search for ``deep.yml`` / ``.deep.yml`` in cwd.
-        - ``str`` or ``Path`` → path to a YAML file.
+        - ``None`` → search for default config names in cwd (see ``DEFAULT_CONFIG_FILENAMES``).
+        - ``str`` or ``Path`` → path to any YAML file.
         - ``dict`` → raw config data to validate directly.
 
     Returns a ``DeepConfig`` with defaults for any missing fields.
@@ -53,16 +53,24 @@ def load_config(source: Union[str, Path, dict, None] = None) -> DeepConfig:
     if isinstance(source, (str, Path)):
         return _load_yaml(Path(source))
 
-    found = _find_config_file()
+    found = find_config_file()
     if found:
         return _load_yaml(found)
 
     return DeepConfig()
 
 
-def _find_config_file(start: Optional[Path] = None) -> Optional[Path]:
+def find_config_file(
+    start: Optional[Path] = None,
+    *,
+    filenames: Sequence[str] = DEFAULT_CONFIG_FILENAMES,
+) -> Optional[Path]:
+    """Find a config file in the given directory (defaults to cwd).
+
+    This is intentionally non-recursive (caller controls where to look).
+    """
     current = (start or Path.cwd()).resolve()
-    for name in CONFIG_FILENAMES:
+    for name in filenames:
         candidate = current / name
         if candidate.is_file():
             return candidate

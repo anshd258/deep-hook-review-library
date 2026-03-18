@@ -1,4 +1,4 @@
-# Deep Hook — example configuration
+# Deek Hook - Review — example configuration
 # Copy to deep.yml or pass to load_config() in your backend.
 # Previous review context is passed at runtime (see run_review(..., previous_review=...)).
 
@@ -39,11 +39,17 @@ llm:
 review:
   max_diff_lines: 3000
 
-# Optional MCP server for extra guidelines (caller can also use mcp_fetcher in run_review)
+# Optional MCP servers — tools are discovered automatically via langchain-mcp-adapters.
+# The caller can also use mcp_fetcher in run_review() for custom guideline fetching.
 mcp:
-  server_url: null
-  tool_name: null
-  headers: {}
+  servers: []
+  # Example:
+  # servers:
+  #   - name: guidelines
+  #     url: http://localhost:8001
+  #     description: "Fetch coding guidelines and architecture rules relevant to modified files."
+  #     transport: streamable_http   # streamable_http (default) | sse
+  #     headers: {}
 
 # Memory / previous review:
 # Not stored in config. Pass at runtime when calling run_review():

@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import fnmatch
 
-from deep_hook.core.models import DeepConfig, GitLabChange, Language
+from deep_hook_review.core.models import DeepConfig, GitLabChange, Language
 
 SYSTEM_PROMPT = """\
 You are a senior software engineer performing a strict, actionable code review.
@@ -116,6 +116,16 @@ def build_system_prompt(config: DeepConfig) -> str:
         guidelines_text = "\n".join(f"- {g}" for g in config.guidelines)
         parts.append(f"\nPROJECT GUIDELINES:\n{guidelines_text}")
 
+    if config.mcp and config.mcp.enabled:
+        mcp_lines = [
+            "You have access to external MCP tools. "
+            "Use them when additional project-specific context is needed "
+            "to perform an accurate code review.",
+        ]
+        for server in config.mcp.servers:
+            mcp_lines.append(f"- {server.name}: {server.description}")
+        parts.append("\nMCP TOOLS:\n" + "\n".join(mcp_lines))
+
     return "\n".join(parts)
 
 
@@ -150,7 +160,6 @@ def build_review_prompt(
     changes: list[GitLabChange],
     config: DeepConfig,
     *,
-    extra_guidelines: str = "",
     previous_review: str | None = None,
 ) -> str:
     """Build the user prompt from a list of GitLab changes.
@@ -161,9 +170,6 @@ def build_review_prompt(
         File changes from the GitLab MR API.
     config
         Active configuration — used for per-file guideline matching.
-    extra_guidelines
-        Additional context fetched from an MCP server or injected
-        by the caller (e.g. team conventions, ADRs).
     previous_review
         Optional summary or full text of the last review (e.g. from memory/DB).
         When provided, the model is asked to check if those issues were addressed.
@@ -175,9 +181,6 @@ def build_review_prompt(
         parts.append("The last review for this branch/MR reported:\n\n")
         parts.append(previous_review.strip())
         parts.append("\n\nCheck whether these issues have been addressed in the current diff. If an issue was fixed, do NOT re-report it. If it persists, include it again with a note that it was previously flagged.\n")
-
-    if extra_guidelines:
-        parts.append(f"## Additional Review Guidelines\n\n{extra_guidelines}\n")
 
     file_level_notes: list[str] = []
     for change in changes:

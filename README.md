@@ -1,4 +1,4 @@
-# Deep Hook
+# Deek Hook - Review
 
 AI-powered code review library for Python. Accepts GitLab-style diffs and returns structured review results.
 
@@ -11,10 +11,10 @@ This project is **uv-native** and uses `pyproject.toml` as the single source of 
 From a consuming backend project:
 
 ```bash
-uv add deep-hook[openai]      # OpenAI (default)
-uv add deep-hook[anthropic]   # Anthropic
-uv add deep-hook[ollama]      # Ollama (local)
-uv add deep-hook[all]         # All providers
+uv add deek-hook-review[openai]      # OpenAI (default)
+uv add deek-hook-review[anthropic]   # Anthropic
+uv add deek-hook-review[ollama]      # Ollama (local)
+uv add deek-hook-review[all]         # All providers
 ```
 
 For local development (Ollama is the default LLM; no API keys needed):
@@ -34,10 +34,20 @@ uv run python test_ollama.py
 
 To use a different model, set `OLLAMA_MODEL` in `test_ollama.py` to the name shown by `ollama list`.
 
+## Public API (import from here only)
+
+**Always import from the top-level package** so your code works whether this repo is installed from a path, PyPI, or inside Docker:
+
+```python
+from deep_hook_review import run_review, GitLabChange, DeepConfig, config_from_yml, load_config
+```
+
+Do **not** use internal submodules (e.g. `deep_hook_review.core`) — they are not part of the stable API and may differ across installations.
+
 ## Quick Start
 
 ```python
-from deep_hook import run_review, GitLabChange, config_from_yml
+from deep_hook_review import run_review, GitLabChange, config_from_yml
 
 changes = [
     GitLabChange(
@@ -89,7 +99,7 @@ This maps directly to the response from `GET /projects/:id/merge_requests/:mr_ii
 ### Inline
 
 ```python
-from deep_hook import DeepConfig, LLMConfig
+from deep_hook_review import DeepConfig, LLMConfig
 
 config = DeepConfig(
     language="python",
@@ -101,7 +111,7 @@ config = DeepConfig(
 ### From deep.yml
 
 ```python
-from deep_hook import load_config
+from deep_hook_review import load_config
 
 config = load_config("deep.yml")
 ```
@@ -152,7 +162,7 @@ file_guidelines:
 You can plug in any external service (MCP server, internal API, etc.) to provide additional review guidelines dynamically. Pass an `mcp_fetcher` callable:
 
 ```python
-from deep_hook import run_review, GitLabChange, DeepConfig
+from deep_hook_review import run_review, GitLabChange, DeepConfig
 
 def fetch_team_guidelines(changes: list[GitLabChange]) -> str:
     """Call your MCP server / internal API for context-aware guidelines."""
@@ -196,7 +206,7 @@ issue.location   # str — "file:line" or just "file"
 ### Markdown Export
 
 ```python
-from deep_hook import generate_review_markdown
+from deep_hook_review import generate_review_markdown
 
 markdown = generate_review_markdown(result)
 ```
@@ -204,7 +214,7 @@ markdown = generate_review_markdown(result)
 ## Architecture
 
 ```
-deep_hook/
+deep_hook_review/
 ├── __init__.py          # Public API: run_review, load_config, models
 ├── agent/
 │   ├── review_agent.py  # Main entry point: run_review()
@@ -226,7 +236,7 @@ deep_hook/
 
 ```python
 from fastapi import FastAPI
-from deep_hook import run_review, GitLabChange, DeepConfig, load_config
+from deep_hook_review import run_review, GitLabChange, DeepConfig, load_config
 
 app = FastAPI()
 config = load_config()
@@ -241,7 +251,3 @@ def review_mr(changes: list[GitLabChange]):
         "tldr": result.tldr,
     }
 ```
-
-## License
-
-MIT
