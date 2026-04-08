@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 
-from deep_hook_review.core.models import FileChange, Issue, ReviewResult, Severity
+from deep_hook_review.core.models import FileChange, Issue, ResolutionStatusRow, ReviewResult, Severity
 
 
 def parse_review_output(raw: str) -> ReviewResult:
@@ -12,9 +12,10 @@ def parse_review_output(raw: str) -> ReviewResult:
     return ReviewResult(
         tldr=_parse_tldr(raw),
         context=_parse_section(raw, "Context"),
+        resolution_status=_parse_resolution_status(raw),
         walkthrough=_parse_walkthrough(raw),
         issues=_parse_all_issues(raw),
-        flow=_parse_section(raw, "Flow"),
+        flow=_parse_section(raw, r"(?:Data\s+)?Flow"),
         raw_output=raw,
     )
 
@@ -39,6 +40,22 @@ def _parse_walkthrough(raw: str) -> list[FileChange]:
         if f and f != "File" and not f.startswith("-"):
             results.append(FileChange(file=f, change=c))
     return results
+
+
+def _parse_resolution_status(raw: str) -> list[ResolutionStatusRow]:
+    text = _parse_section(raw, r"Resolution\s+Status")
+    if not text:
+        return []
+
+    rows: list[ResolutionStatusRow] = []
+    for row in re.findall(r"\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|", text):
+        prev, status, notes = row[0].strip(), row[1].strip(), row[2].strip()
+        if not prev or prev.lower() == "previous issue":
+            continue
+        if set(prev) <= {"-"}:
+            continue
+        rows.append(ResolutionStatusRow(previous_issue=prev, status=status, notes=notes))
+    return rows
 
 
 def _parse_all_issues(raw: str) -> list[Issue]:

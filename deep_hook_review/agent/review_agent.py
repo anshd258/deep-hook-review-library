@@ -56,7 +56,9 @@ async def run_review(
     tools = await load_mcp_tools(config)
     llm = get_llm(config, api_key)
 
-    system_prompt = build_system_prompt(config)
+    is_update = bool(previous_review and previous_review.strip())
+    print(f"is_update: {is_update}")
+    system_prompt = build_system_prompt(config, is_update=is_update)
     user_message = build_review_prompt(
         non_empty,
         config,

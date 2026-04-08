@@ -96,6 +96,10 @@ class ReviewConfig(BaseModel):
 
 class DeepConfig(BaseModel):
     language: Language = Field(default=Language.PYTHON)
+    strict: bool = Field(
+        default=False,
+        description="Strict mode: focus on architecture/correctness/security, ignore formatting",
+    )
     guidelines: list[str] = Field(default_factory=list, description="Global guidelines applied to all files")
     file_guidelines: list[FileGuideline] = Field(default_factory=list, description="Per-file-pattern guidelines")
     llm: LLMConfig = Field(default_factory=LLMConfig)
@@ -108,6 +112,12 @@ class DeepConfig(BaseModel):
 class FileChange(BaseModel):
     file: str
     change: str
+
+
+class ResolutionStatusRow(BaseModel):
+    previous_issue: str = Field(description="Verbatim issue from previous review")
+    status: str = Field(description="Fixed | Persists | Partial")
+    notes: str = Field(default="", description="Brief explanation")
 
 
 class Issue(BaseModel):
@@ -126,6 +136,7 @@ class Issue(BaseModel):
 class ReviewResult(BaseModel):
     tldr: list[str] = Field(default_factory=list)
     context: str = ""
+    resolution_status: list[ResolutionStatusRow] = Field(default_factory=list)
     walkthrough: list[FileChange] = Field(default_factory=list)
     issues: list[Issue] = Field(default_factory=list)
     flow: str = ""

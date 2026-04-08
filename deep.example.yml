@@ -5,6 +5,11 @@
 # Project language: python | flutter | typescript | javascript | go | rust | java | other
 language: python
 
+# Review strictness: true | false
+# true  = focus on architecture, correctness, security (ignores formatting/spacing)
+# false = standard holistic review (proportional, code must still not break)
+strict: false
+
 # Global guidelines applied to every file
 guidelines:
   - "Follow project coding standards"

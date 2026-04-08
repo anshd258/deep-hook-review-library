@@ -29,6 +29,12 @@ def generate_review_markdown(result: ReviewResult) -> str:
     if result.context:
         lines += ["## Context\n", result.context, ""]
 
+    if result.resolution_status:
+        lines += ["## Resolution Status\n", "| Previous Issue | Status | Notes |", "|---------------|--------|-------|"]
+        for r in result.resolution_status:
+            lines.append(f"| {r.previous_issue} | {r.status} | {r.notes} |")
+        lines.append("")
+
     if result.walkthrough:
         lines += ["## Walkthrough\n", "| File | Change |", "|------|--------|"]
         for w in result.walkthrough:
